@@ -1,0 +1,11 @@
+
+# Global
+.env
+.env.local
+.env.*.local
+
+# Server
+server/node_modules/
+server/dist/
+server/.env
+server/test.http

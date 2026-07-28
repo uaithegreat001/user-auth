@@ -1,0 +1,2 @@
+## Validation on both frontend and backend
+Frontend validation is for user experience (instant feedback). Backend validation is for security (frontend checks can be bypassed, backend is harder to bypass).
