@@ -53,7 +53,7 @@ export const createAccountValidator = [
         .matches(/^[A-Za-z\s]+$/).withMessage("Name is invalid"),
 
     // Email validation and sanitization
-    body("email").trim().notEmpty().withMessage("Email is required").bail()
+    body("email").trim().notEmpty().withMessage("Email address is required").bail()
         .isEmail().withMessage("Email address is invalid").bail()
         .normalizeEmail(),
 
@@ -70,7 +70,7 @@ export const createAccountValidator = [
 export const loginUserValidator = [
 
      // Email validation and sanitization
-    body("email").trim().notEmpty().withMessage("Email is required").bail()
+    body("email").trim().notEmpty().withMessage("Email address is required").bail()
         .isEmail().withMessage("Email address is invalid").bail()
         .normalizeEmail(),
 

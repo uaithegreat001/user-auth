@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #f0f0f0;
+  --card-bg: #ffffff;
+  --btn-bg: #054156;
+  --btn-text: #8cbf4e;
+  --btn-hover: #065a75;
+  --text-heading: #1a1a2e;
+  --text-body: #555566;
+  --text-label: #2d2d3f;
+  --input-border: #e0e0e0;
+  --input-focus: #054156;
+  --error: #e04848;
+  --link: #054156;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --radius: 5px;
+  --radius-lg: 10px;
+}
+
+/* Global Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Body */
+body {
+  background-color: var(--bg);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-body);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+/* Form Container */
+.form-container {
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 440px;
+  padding: 30px;
+  border-radius: var(--radius-lg);
+}
+
+/* Form Title & Subtitle */
+.form-title {
+  font-size: 1.70rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  text-transform: capitalize;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.form-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-body);
+  font-weight: 400;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+.form-title, .form-subtitle {
+  text-align: center;
+}
+
+/* Form */
+form {
+  display: flex;
+  flex-direction: column;
+  gap:1.5px;
+}
+
+/* Input Field Wrapper */
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.input-field label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-body);
+  letter-spacing: 0.01em;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 9px 16px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text-body);
+  border: 1.5px solid var(--input-border);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-field input::placeholder {
+  color: rgb(160, 160, 176, 0.8);
+  font-weight: 400;
+  font-size: 0.75rem;
+
+}
+
+.input-field input:focus {
+  border-color: var(--input-focus);
+}
+
+/* Input Error State */
+.input-field input.input-error {
+  border-color: var(--error);
+}
+
+
+/* Error Message */
+.error {
+  font-size: 0.75rem;
+  color: var(--error);
+  font-weight: 500;
+  margin-top: -2px;
+}
+
+/* Auth Button */
+.auth-button {
+  width: 100%;
+  padding: 9px;
+  margin-top: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--btn-text);
+  background-color: var(--btn-bg);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+.auth-button:hover {
+  background-color: var(--btn-hover);
+}
+
+
+
+.auth-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Form Footer */
+.formFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+  font-size: 0.8rem;
+}
+
+.formFooter p {
+  color: var(--text-body);
+}
+
+.formFooter a {
+  color: var(--link);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.formFooter a:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
