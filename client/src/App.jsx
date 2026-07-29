@@ -1,14 +1,30 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CreateAccount from "./pages/createAccount"
+import { Toaster } from "react-hot-toast"
 import Login from "./pages/login"
+import Dashboard from "./pages/dashboard";
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/create-account" element={<CreateAccount />} />
-      </Routes>
-    </Router>
+    <BrowserRouter>
+    <Toaster position="top-center" 
+    toastOptions={{
+      style: {
+        boxShadow: "none",
+        fontSize: "0.8rem",
+        fontWeight: 600,
+      },
+      error: {style:{border:"1px solid rgb(85, 85, 102, 0.3)"}},
+      success: {style:{border:"1px solid rgb(85, 85, 102, 0.3)"}}
+    }}
+    />
+      
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/create-account" element={<CreateAccount />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      
+    </BrowserRouter>
   )
 }
 

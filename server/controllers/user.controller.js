@@ -1,4 +1,3 @@
-import { request, response } from "express";
 import { createAccountService, loginUserService } from "../services/user.service.js";
 
 // Handle create acoount request and response

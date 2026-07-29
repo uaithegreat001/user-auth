@@ -1,4 +1,4 @@
-import bcrypt, { hash } from "bcrypt"
+import bcrypt from "bcrypt"
 import {createUser, findUserByEmail} from "../model/user.js";
 
 // Creating new user 

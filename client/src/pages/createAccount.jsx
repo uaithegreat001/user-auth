@@ -1,11 +1,15 @@
 import FormContainer from "../components/FormContainer";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { createAccount } from "../services/userServces";
+import { Navigate } from "react-router-dom";
 
 
 function CreateAccount() {
+    const navigate = useNavigate();
     // Handle form data
     const [formData, setFormData] = useState({
         name: "",
@@ -24,6 +28,9 @@ function CreateAccount() {
         })
 
     }
+    // Loading
+    const [loading, setLoading] = useState(false);
+
 
     // Handle error feedbacks
     const validate = () => {
@@ -62,13 +69,46 @@ function CreateAccount() {
 
     }
     // Handle form submit
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
-        console.log("form Submitted");
-    }
+        setLoading(true);
 
+        // Submit user data to the backend api 
+        try {
+            const response = await createAccount(formData);
+            toast.success(response.data.message);
+
+            setFormData({
+                name: "",
+                email: "",
+                password: ""
+            });
+            setFieldErrors({});
+            // Redirect to dashboard
+            setTimeout(() => {
+                navigate('/dashboard'); 
+            }, 2000);
+        } catch (error) {
+            const backendMessage = error?.response?.data;
+            if (backendMessage?.errors) {
+                // Handle validation errors from backend
+                const mappedErrors = {};
+                backendMessage.errors.forEach((err) => {
+                    mappedErrors[err.field] = err.message;
+
+                });
+                setFieldErrors(mappedErrors);
+            } else {
+                toast.error(backendMessage?.message || "Internal server error. Please try again later.");
+            }
+
+        } finally {
+            setLoading(false);
+        }
+
+    };
 
     return (
         <FormContainer title="it's free! join now" subtitle="Fill the details to create account">
@@ -102,7 +142,11 @@ function CreateAccount() {
                     error={fieldErrors.password}
 
                 />
-                <Button text="Create Account" type="submit" />
+                <Button
+                    text={loading ? "..." : "Create Account"}
+                    type="submit"
+                    disabled={loading}
+                />
                 <div className="formFooter">
                     <p> Already have an account? </p>
                     <Link to="/">Login</Link>

@@ -14,7 +14,10 @@ const port = process.env.PORT || 3000;
 
 
 // Global middlewares
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",  // Frontend URL
+}
+));
 app.use(helmet());
 app.use(express.json());
 

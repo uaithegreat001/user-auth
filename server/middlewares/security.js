@@ -5,7 +5,7 @@ import { body, validationResult } from "express-validator"
 // Global rate limit of every api endpoints
 export const globalLimiter = ratelimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 50,   // 50 request per ip per 15 minutes
+    max: 50,   // 50 request per ip per 5 minutes
     standardHeaders: true,
     legacyHeaders: false,
     message: {
@@ -16,8 +16,8 @@ export const globalLimiter = ratelimit({
 
 // Rate limit for authentication api endpoints (login, register, forgot password)
 export const authLimiter = ratelimit({
-    windowMs: 5 * 60 * 1000, // 15 minutes
-    max: 50,   // 5 request per ip per 5 minutes
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 5,   // 50 request per ip per 5 minutes
     standardHeaders: true,
     legacyHeaders: false,
     message: {
