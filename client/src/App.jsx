@@ -3,6 +3,7 @@ import CreateAccount from "./pages/createAccount"
 import { Toaster } from "react-hot-toast"
 import Login from "./pages/login"
 import Dashboard from "./pages/dashboard";
+import OTP from "./pages/otp";
 function App() {
   return (
     <BrowserRouter>
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
+          <Route path="/otp" element = {<OTP/>} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       

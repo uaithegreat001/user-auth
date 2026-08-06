@@ -5,8 +5,6 @@ import helmet from "helmet";
 import { connectDB } from "./configs.js";
 import userRouter from "./routes/user.route.js";
 import { globalLimiter } from "./middlewares/security.js";
-
-
 dotenv.config();
 
 const app = express();

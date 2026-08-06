@@ -1,23 +1,23 @@
 # Changelog
+All changes to this project will be documented in this file
 
-## [ 0.1.0 ] - 28 July 2026 
+
+## 2026-08-06
 ### Added
-### Account Creation and Login
-- Create-account endpoint with password hashing 
-- Login endpoint with hashed password comparison
-- Input validation and sanitization via middleware
-- Database-level schema validation as a second layer of defense
+- OTP generation flow for users during creating account.
+- OTP code verification endpoint to complete the account creation flow.
 
-## [ 0.2.0 ] - 29 July 2026 
+## 026-07-30
+### Fixed
+- Resolved missing words and typo error in backend error responses.
+
+
+## 2026-07-29
 ### Added
-### Frontend for Create Acoount and Login
-- Create-account and login pages using React js with vanilla css
-- Fixing words missing in backend
-
-
-## [ 0.3.1 ] - 29 July 2026
-### Added
-### Integrated frontend with backend API
-- Connect frontend (create account & login forms) with backend api using axios for full functioning
+- Account creation (`/create-account`) and login (`/login`) API endpoints with password hashing.
+- Input validation and sanitization middleware for incoming backend requests.
+- Database-level schema validation as a second layer of defense.
+- Frontend account creation and login pages built with React.js and vanilla CSS.
+- Full API integration connecting React forms to backend endpoints using Axios.
 
 

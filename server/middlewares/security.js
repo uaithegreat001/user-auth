@@ -69,7 +69,7 @@ export const createAccountValidator = [
 // Validation rules for login
 export const loginUserValidator = [
 
-     // Email validation and sanitization
+    // Email validation and sanitization
     body("email").trim().notEmpty().withMessage("Email address is required").bail()
         .isEmail().withMessage("Email address is invalid").bail()
         .normalizeEmail(),
@@ -82,6 +82,20 @@ export const loginUserValidator = [
 
 ];
 
+// Validation rules for otp
+export const otpValidator = [
+
+    // Email validation
+    body("email").notEmpty().withMessage("Email address is required").bail(),
+
+    // OTP validation and sanitization
+    body("code").trim().notEmpty().withMessage("OTP code is required").bail()
+        .matches(/^\d{6}$/).withMessage("OTP code is invalid"),
+    
+    handleValidationErrors
+
+    
+];
 
 
 

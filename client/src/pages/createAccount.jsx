@@ -86,10 +86,14 @@ function CreateAccount() {
                 password: ""
             });
             setFieldErrors({});
-            // Redirect to dashboard
-            setTimeout(() => {
-                navigate('/dashboard'); 
-            }, 2000);
+            // Redirect to OTP page
+    
+                navigate("/otp", {
+                    state: {
+                        email: response.data.data.email,
+                    }
+                });
+            
         } catch (error) {
             const backendMessage = error?.response?.data;
             if (backendMessage?.errors) {

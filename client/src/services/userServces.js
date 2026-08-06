@@ -10,3 +10,10 @@ export const createAccount = (formData) => {
 export const login = (formData) => {
     return api.post("/users/auth/login", formData)
 };
+
+// Accessing backend verification otp code api
+export const verifyUserCreateAccount = (data) => {
+    return api.post("users/auth/verify-create-account",  data);
+}
+
+

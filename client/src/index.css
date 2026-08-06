@@ -141,9 +141,9 @@ form {
 /* Auth Button */
 .auth-button {
   width: 100%;
-  padding: 9px;
+  padding: 12px;
   margin-top: 8px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   font-family: inherit;
   color: var(--btn-text);
@@ -192,6 +192,9 @@ form {
 .formFooter a:hover {
   text-decoration: underline;
   opacity: 0.85;
+}
+.otp-input {
+  text-align: center;
 }
 
 /* Dashboard */

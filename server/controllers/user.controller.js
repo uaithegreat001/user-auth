@@ -1,4 +1,6 @@
 import { createAccountService, loginUserService } from "../services/user.service.js";
+import { generateOTP, verifyOTP } from "../services/otp.service.js";
+
 
 // Handle create acoount request and response
 export const createAccount = async (request, response) => {
@@ -27,12 +29,36 @@ export const createAccount = async (request, response) => {
     }
 };
 
+// Handle user verification of OTP
+export const verifyUserCreateAccount = async (request, response) => {
+    try {
+        const { email, code} = request.body;
+        
+        // Call verify otp in otp service
+        await verifyOTP(email, "create_account", code);
+
+        
+        return response.status(200).json({
+            success: true,
+            message: " Account created successfully"
+        });
+
+    } catch (error) {
+        return response.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Internal server error",
+        });
+
+    }
+};
+
+
 // Handle login request and response
 export const login = async (request, response) => {
     try {
         // Parse user request
         const { email, password } = request.body;
-        
+
         // Call loginUserService from user.service.js
         const user = await loginUserService({ email, password });
 
@@ -53,3 +79,4 @@ export const login = async (request, response) => {
 
     }
 };
+

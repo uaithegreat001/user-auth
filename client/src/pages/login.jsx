@@ -74,7 +74,7 @@ function Login() {
             // Redirect to dashboard
             setTimeout(() => {
                 navigate('/dashboard');
-            }, 2000);
+            }, 1000);
         } catch (error) {
             const backendMessage = error?.response?.data;
             if (backendMessage?.errors) {

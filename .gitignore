@@ -8,4 +8,4 @@
 server/node_modules/
 server/dist/
 server/.env
-server/test.http
+test.http
