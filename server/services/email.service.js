@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import nodemailer from 'nodemailer';
 
-// create transforter
+// Create transforter for email
 export const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -19,4 +19,3 @@ try {
 } catch (err) {
     console.error("SMTP connection failed", err);
 }
-// define  email content

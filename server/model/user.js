@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// user db schema
+// User schema
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
         required: [true, "Email address is required"],
-        trim: true,
         match: [
             /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
             "Email address is invalid"
@@ -24,56 +23,77 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "Password is required"],
-        trim: true,
         select: false,
     },
     isVerified: {
         type: Boolean,
         default: false,
     }
-},
-    { timestamps: true }
+}, { timestamps: true }
 );
 
 // OTP schema
-const otpShema = new mongoose.Schema({
+const otpSchema = new mongoose.Schema({
     email: {
         type: String,
         lowercase: true,
         required: [true, "Email address is required"],
         trim: true
     },
-    otp_code: {
+    otpCode: {
         type: String,
         trim: true,
         required: [true, "OTP code is required"],
 
     },
-    otp_type: {
+    otpType: {
         type: String,
         required: true,
         enum: ['create_account', 'login', 'reset_password']
 
     },
-    expires_at: {
+    expiresAt: {
         type: Date,
         required: true,
-        index: { expires: 0 }
+        expires: 0 
 
 
     }
-},
-    { timestamps: true }
+}, { timestamps: true }
 );
 
 // One active OTP per email
-otpShema.index(
-    { email: 1, otp_type: 1 },
-    { unique: true }
-)
+otpSchema.index(
+    { email: 1, otpType: 1 }, { unique: true }
+);
+
+// Reset token schema
+const resetTokenSchema = new mongoose.Schema({
+     email: {
+        type: String,
+        lowercase: true,
+        required: [true, "Email address is required"],
+        trim: true
+    },
+    token: {
+        type: String,
+        required: true,
+        unique: true
+
+    },
+    expiresAt: {
+        type: Date,
+        required: true,
+        expires: 0 
+    }
+
+
+}, { timestamps: true }
+);
 
 export const User = mongoose.model("User", userSchema);
-export const Otp = mongoose.model("Otp", otpShema);
+export const Otp = mongoose.model("Otp", otpSchema);
+export const ResetToken = mongoose.model("ResetToken", resetTokenSchema);
 
 
 // Database query for data acess
@@ -82,36 +102,71 @@ export const createUser = async (userData) => {
     return await User.create(userData);
 };
 
-// Find user by email in db
+// Find user by id and delete
+export const deleteUserById = async (id) => {
+    return await User.findByIdAndDelete(id);
+
+};
+
+// Find user by email 
 export const findUserByEmail = async (email, includePassword = false) => {
     const query = User.findOne({ email });
     if (includePassword) query.select("+password");
     return await query;
 };
 
-// createOtp(otpData)
+// Update a user password by email
+export const updateUserPassword = async (email, hashedPassword) => {
+    return await User.findOneAndUpdate(
+        {email},
+        {password: hashedPassword},
+        {new: true}
+
+    );
+}
+
+// Create Otp in db
 export const createOtp = async (otpData) => {
     return await Otp.create(otpData)
 };
 
-//findOtp(email, otp_type)
-export const findOtp = async ({ email, otp_type }) => {
-    return await Otp.findOne({ email, otp_type });
+// Find Otp in db
+export const findOtp = async ({ email, otpType }) => {
+    return await Otp.findOne({ email, otpType });
 }
-//deleteOtp(otpId)
+// Delete Otp in db
 export const deleteOtp = async (filter) => {
     return await Otp.deleteOne(filter);
 }
 
-// Update the status 
+// Update user status after verification
 export const markUserVerified = async (email) => {
     return await User.findOneAndUpdate(
         { email },
         { isVerified: true },
-        { new: true}
+        { new: true }
     )
-
-
 };
+
+// Create reset token in db
+export const createResetToken = async (tokenData) => {
+    return await ResetToken.create(tokenData);
+};
+
+// Find reset token in db
+export const findResetToken = async (token) => {
+    return await ResetToken.findOne({token});
+};
+
+// Delete reset token in db
+export const deleteResetToken = async (token) => {
+    return await ResetToken.deleteOne({token});
+};
+
+// Delete reset token in db
+export const deleteResetTokensByEmail = async (email) => {
+    return await ResetToken.deleteMany({email});
+}
+
 
 

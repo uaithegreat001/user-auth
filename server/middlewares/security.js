@@ -17,7 +17,7 @@ export const globalLimiter = ratelimit({
 // Rate limit for authentication api endpoints (login, register, forgot password)
 export const authLimiter = ratelimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 5,   // 50 request per ip per 5 minutes
+    max: 12,   // 12 request per ip per 5 minutes
     standardHeaders: true,
     legacyHeaders: false,
     message: {
@@ -58,7 +58,7 @@ export const createAccountValidator = [
         .normalizeEmail(),
 
     // Password validation and sanitization
-    body("password").trim().notEmpty().withMessage("Password is required").bail()
+    body("password").notEmpty().withMessage("Password is required").bail()
         .isLength({ min: 8 }).withMessage("Password must be 8+ characters").bail()
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
         .withMessage("Password must be 8+ characters with lowercase, uppercase, number and symbol"),
@@ -75,7 +75,7 @@ export const loginUserValidator = [
         .normalizeEmail(),
 
     // Password validation and sanitization
-    body("password").trim().notEmpty().withMessage("Password is required"),
+    body("password").notEmpty().withMessage("Password is required"),
 
 
     handleValidationErrors
@@ -86,18 +86,45 @@ export const loginUserValidator = [
 export const otpValidator = [
 
     // Email validation
-    body("email").notEmpty().withMessage("Email address is required").bail(),
+    body("email").trim().notEmpty().withMessage("Email address is required").bail()
+        .isEmail().withMessage("Email address is invalid").bail()
+        .normalizeEmail(),
 
-    // OTP validation and sanitization
+    // Otp code validation and sanitization
     body("code").trim().notEmpty().withMessage("OTP code is required").bail()
         .matches(/^\d{6}$/).withMessage("OTP code is invalid"),
-    
+
     handleValidationErrors
 
-    
+
 ];
 
+// Validate rule for email
+export const emailValidator = [
+    // Email validation
+    body("email").trim().notEmpty().withMessage("Email address is required").bail()
+        .isEmail().withMessage("Email address is invalid").bail()
+        .normalizeEmail(),
 
+    handleValidationErrors
+
+];
+
+// Validate rules for Otp code and reset token 
+export const resetPasswordValidator = [
+    // Reset password token
+    body("token")
+        .trim()
+        .notEmpty().withMessage("Reset token is required"),
+
+    // Password validation and sanitization
+    body("password").notEmpty().withMessage("Password is required").bail()
+        .isLength({ min: 8 }).withMessage("Password must be 8+ characters").bail()
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+        .withMessage("Password must be 8+ characters with lowercase, uppercase, number and symbol"),
+
+    handleValidationErrors
+];
 
 
 
