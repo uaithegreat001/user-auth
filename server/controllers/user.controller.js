@@ -6,7 +6,7 @@ import {
     resetPasswordWithToken
 } from "../services/otp.service.js";
 
-// Handle user create acoount 
+// Handle create account
 export const createAccount = async (request, response) => {
     try {
         // Parse request
@@ -14,6 +14,7 @@ export const createAccount = async (request, response) => {
 
         const user = await createAccountService({ name, email, password });
 
+        // Response & return user data
         return response.status(201).json({
             success: true,
             message: "Check your email OTP code is sent for verification",
@@ -57,7 +58,7 @@ export const verifyUserCreateAccount = async (request, response) => {
 // handle create account resend otp code
 export const resendOtpForCreateAccount = async (request, response) => {
     try {
-        // parse request
+        // Parse request
         const { email } = request.body;
         await resendOtp(email, "create_account");
 
@@ -82,7 +83,8 @@ export const login = async (request, response) => {
         const { email, password } = request.body;
 
         const user = await loginUserService({ email, password });
-
+        
+        // Response & return user data
         return response.status(200).json({
             success: true,
             message: "Check your email OTP code is sent for verification",
@@ -108,7 +110,7 @@ export const verifyUserLogin = async (request, response) => {
 
         return response.status(200).json({
             success: true,
-            message: " Account verify successfully"
+            message: " Login successfully"
         });
 
     } catch (error) {
@@ -140,15 +142,16 @@ export const resendOtpForLogin = async (request, response) => {
     }
 }
 
-// Request for password resetting
+// Initiate password resetting
 export const initiatePasswordReset = async (request, response) => {
     try {
+        // Parse request
         const { email } = request.body;
         await requestPasswordReset(email);
 
         return response.status(200).json({
             success: true,
-            message: "OTP sent successfully",
+            message: "Check your email OTP code is sent for verification",
         });
     } catch (error) {
         return response.status(error.statusCode || 500).json({
@@ -197,7 +200,7 @@ export const resendOtpForResetPassword = async (request, response) => {
 
 }
 
-// Password resetting with a token 
+// Handle password resetting with a token 
 export const resetPassword = async (request, response) => {
     try {
         const {token, password} = request.body;

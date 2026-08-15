@@ -24,7 +24,7 @@ import {
 
 const router = new Router();
 
-// Authentification routes
+// Auth & verify routes
 router.post("/create-account",
     authLimiter,
     createAccountValidator,
@@ -60,14 +60,11 @@ router.post("/forgot-password",
     emailValidator, 
     initiatePasswordReset
 )
-
 router.post("/reset-password/verify", 
     authLimiter, 
     otpValidator, 
     verifyOtpForResetPassword
 )
-
- 
 router.post("/reset-password/verify/resend", 
     authLimiter, 
     emailValidator, 

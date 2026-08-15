@@ -8,11 +8,11 @@ const hashPassword = async (password) => {
 };  
 
 
-// Creating new user 
+// Handle create account service
 export const createAccountService = async ({ name, email, password }) => {
-    let user;
 
-    // Check if user already exist in db
+    // Check user by email in database
+    let user;
     const existingUser = await findUserByEmail(email);
 
     // If user exist and is verified
@@ -25,16 +25,7 @@ export const createAccountService = async ({ name, email, password }) => {
     // Hash the user password
     const hashedPassword = await hashPassword(password);
 
-    // Send OTP to email
-    try {
-        await generateOtp(email, "create_account");
-    } catch (err) {
-        const error = new Error("Connection Error. please try again.");
-        error.statusCode = 500;
-        throw error;
-    }
-
-    // If user exist and is not verified
+     // If user exist and is not verified ( allow retry by updating data )
     if (existingUser && !existingUser.isVerified) {
         existingUser.name = name;
         existingUser.password = hashedPassword;
@@ -48,8 +39,17 @@ export const createAccountService = async ({ name, email, password }) => {
             password: hashedPassword,
             isVerified: false
         });
-
     }
+
+    // Send OTP code to email address
+    try {
+        await generateOtp(email, "create_account");
+    } catch (err) {
+        const error = new Error("Connection Error. please try again.");
+        error.statusCode = 500;
+        throw error;
+    }
+
     return {
         id: user._id,
         name: user.name,
@@ -58,33 +58,34 @@ export const createAccountService = async ({ name, email, password }) => {
 }
 
 
-// Login user 
+// Handle login service 
 export const loginUserService = async ({ email, password }) => {
-    // 1. Check if user already exist in db
+     // Check user by email in database including password
     const existingUser = await findUserByEmail(email, true);
+    // If not found
     if (!existingUser) {
-        const error = new Error("User not exists");
+        const error = new Error("Could'nt find user.");
         error.statusCode = 404;
         throw error;
     }
-
+    // If found not verified
     if (!existingUser.isVerified) {
-        const error = new Error("Please verify your account before login");
+        const error = new Error("Verify your account before login.");
         error.statusCode = 403;
         throw error;
     }
 
-
-    // Compare hashed password with provided password
+    // If found and is verified
+    // Compare hashed password with submitted password
     const isMatch = await bcrypt.compare(password, existingUser.password);
 
     if (!isMatch) {
-        const error = new Error("Invalid email or password");
+        const error = new Error("Email or password is invalid");
         error.statusCode = 401;
         throw error;
     }
 
-    // Send OTP to email
+    // Send Otp to email
     try {
         await generateOtp(email, "login");
     } catch (err) {
@@ -92,7 +93,6 @@ export const loginUserService = async ({ email, password }) => {
         error.statusCode = 500;
         throw error;
     }
-
     return {
         id: existingUser._id,
         email: existingUser.email,
@@ -100,21 +100,25 @@ export const loginUserService = async ({ email, password }) => {
 
 }
 
-// Password resetting
+// Handle Password resetting
 export const requestPasswordReset = async (email) => {
+    // Check user by email in database
     const existingUser = await findUserByEmail(email);
+
+    // If not found
     if(!existingUser) {
-        const error = new Error("User not exist");
+        const error = new Error("Could'nt find user.");
         error.statusCode = 404;
         throw error;
     }
     
+    // If not verified
     if(!existingUser.isVerified) {
-        const error = new Error("Please verify your account before reset password");
+        const error = new Error("Please verify your account.");
         error.statusCode = 403;
         throw error;
     }
-    // Send OTP to email
+    // Send Otp code to email
     try {
         await generateOtp(email, "reset_password");
     } catch (err) {

@@ -23,17 +23,16 @@ const OTP_EXPIRY_TIME = 5;
 // Otp code hashing
 const OTP_HASH_SECRET_KEY = process.env.OTP_HASH_SECRET_KEY;
 const hashOtpCode = (code) => {
-    if (!OTP_HASH_SECRECT_KEY) {
+    if (!OTP_HASH_SECRET_KEY) {
         throw new Error("OTP hash key is not configured")
     }
     return crypto.createHmac('sha256', OTP_HASH_SECRET_KEY).update(code).digest('hex');
-
-}
+};
 
 // Hashing password
 const hashPassword = async (password) => {
     return await bcrypt.hash(password, 10);
-}
+};
 
 
 // Handle otp code generating
@@ -51,7 +50,7 @@ export const generateOtp = async (email, otpType) => {
     // Hash the otp code
     const hashedCode = hashOtpCode(otpCode);
 
-    // Set expiry time 
+    // Set expiry time to 5min
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_TIME * 60 * 1000);
 
     // Delete any existing OTP for this email 
@@ -79,10 +78,10 @@ export const generateOtp = async (email, otpType) => {
         throw new Error("Failed to send OTP to email")
     }
     
-    return { success: true, message: 'OTP sent successfully' }
+    return { success: true, message: "OTP sent successfully" };
 
 
-}
+};
 
 // Handle resend otp code 
 export const resendOtp = async (email, otpType) => {
@@ -90,9 +89,9 @@ export const resendOtp = async (email, otpType) => {
     // Handle create account action
     if (otpType === "create_account") {
 
-        // if user not exist 
+        // if Could'nt find user. 
         if (!existingUser) {
-            const error = new Error("User not exist. please create account first");
+            const error = new Error("Could'nt find user. please create account first");
             error.statusCode = 400;
             throw error;
         }
@@ -107,7 +106,7 @@ export const resendOtp = async (email, otpType) => {
     if (otpType === "login" || otpType === "reset_password") {
 
         if (!existingUser) {
-            const error = new Error("User not exist. please create account first");
+            const error = new Error("Could'nt find user. please create account first");
             error.statusCode = 400;
             throw error;
         }
@@ -119,9 +118,9 @@ export const resendOtp = async (email, otpType) => {
     }
 
     // Gerate new otp code
-    await generateOTP(email, otpType);
+    await generateOtp(email, otpType);
 
-    return { success: true, message: 'OTP resent successfully' }
+    return { success: true, message: "OTP resent successfully" }
 
 }
 
@@ -163,7 +162,7 @@ export const verifyOtp = async (email, otpType, submittedCode) => {
         && timingSafeEqual(submittedBuffer, storedBuffer);
 
     if (!matchOtp) {
-        const error = new Error("Invalid OTP code");
+        const error = new Error("Verification code is invalid.");
         error.statusCode = 400;
         throw error;
     }
@@ -172,7 +171,7 @@ export const verifyOtp = async (email, otpType, submittedCode) => {
     if (otpType === "create_account") {
         const verifiedUser = await markUserVerified(email);
         if (!verifiedUser) {
-            const error = new Error("User not exists")
+            const error = new Error("Could'nt find user.")
             error.statusCode = 404;
             throw error;
         }
@@ -190,11 +189,11 @@ export const verifyOtp = async (email, otpType, submittedCode) => {
 // Handle reset password code verification
 export const verifyResetPasswordOtp = async (email, code) => {
     // Verify otp code
-    await verifyOTP(email, "reset_password", code);
+    await verifyOtp(email, "reset_password", code);
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     
-    // Delete reset token in db
+    // Delete reset token in database
     await deleteResetTokensByEmail(email);
     
     // Create reset token
