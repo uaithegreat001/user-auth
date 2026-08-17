@@ -24,7 +24,7 @@ const OTP_EXPIRY_TIME = 5;
 const OTP_HASH_SECRET_KEY = process.env.OTP_HASH_SECRET_KEY;
 const hashOtpCode = (code) => {
     if (!OTP_HASH_SECRET_KEY) {
-        throw new Error("OTP hash key is not configured")
+        throw new AppError("OTP hash key is not configured.", 500);
     }
     return crypto.createHmac('sha256', OTP_HASH_SECRET_KEY).update(code).digest('hex');
 };
@@ -39,9 +39,7 @@ const hashPassword = async (password) => {
 export const generateOtp = async (email, otpType) => {
 
     if (!email || !otpType) {
-        const error = new Error("Email and OTP are required");
-        error.statusCode = 400;
-        throw error;
+        throw new AppError("Email and OTP are required.", 400);
     }
 
     // Generate a random 6 digit
@@ -75,12 +73,10 @@ export const generateOtp = async (email, otpType) => {
 
     } catch (err) {
         console.error("Error while sending mail:", err);
-        throw new Error("Failed to send OTP to email")
+        throw new AppError("Failed to send OTP to email", 502);  
     }
-    
+
     return { success: true, message: "OTP sent successfully" };
-
-
 };
 
 // Handle resend otp code 
@@ -91,29 +87,23 @@ export const resendOtp = async (email, otpType) => {
 
         // if Could'nt find user. 
         if (!existingUser) {
-            const error = new Error("Could'nt find user. please create account first");
-            error.statusCode = 400;
-            throw error;
+        throw new AppError("Could'nt find user. please create account first.", 400);  
         }
+
         // if user already exist and is verified
         if (existingUser && existingUser.isVerified) {
-            const error = new Error("Account already verified. please login");
-            error.statusCode = 400;
-            throw error;
+        throw new AppError("Account already verified. please login.", 400);  
         }
     }
+
     // Handle create account action 
     if (otpType === "login" || otpType === "reset_password") {
 
         if (!existingUser) {
-            const error = new Error("Could'nt find user. please create account first");
-            error.statusCode = 400;
-            throw error;
+        throw new AppError("Could'nt find user. please create account first.", 400);  
         }
         if (!existingUser.isVerified) {
-            const error = new Error("Account is unverified. please verify your account");
-            error.statusCode = 400;
-            throw error;
+        throw new AppError("Account is unverified. please verify your account.", 400);  
         }
     }
 
@@ -128,27 +118,21 @@ export const resendOtp = async (email, otpType) => {
 export const verifyOtp = async (email, otpType, submittedCode) => {
 
     if (!email || !otpType || !submittedCode) {
-        const error = new Error("Email and OTP are required");
-        error.statusCode = 400;
-        throw error;
+        throw new AppError("Email and OTP are required.", 400);  
     }
 
     // Find otp in database
     const otpRecord = await findOtp({ email, otpType });
     if (!otpRecord) {
-        const error = new Error("Invalid or expired OTP");
-        error.statusCode = 400;
-        throw error;
-
+        throw new AppError("Invalid or expired OTP.", 400);  
     }
 
     // Check if OTP has expired
     const currentTime = Date.now();
     if (currentTime > otpRecord.expiresAt.getTime()) {
         await deleteOtp({ _id: otpRecord._id })
-        const error = new Error("OTP has expired");
-        error.statusCode = 400;
-        throw error;
+        throw new AppError("OTP has expired.", 400);  
+
     }
     // Hash otp code 
     const submitted = String(submittedCode).padStart(OTP_LENGHTH, '0');
@@ -162,18 +146,14 @@ export const verifyOtp = async (email, otpType, submittedCode) => {
         && timingSafeEqual(submittedBuffer, storedBuffer);
 
     if (!matchOtp) {
-        const error = new Error("Verification code is invalid.");
-        error.statusCode = 400;
-        throw error;
+        throw new AppError("Verification code is invalid.", 400);  
     }
 
     // Set verify user to true for create account
     if (otpType === "create_account") {
         const verifiedUser = await markUserVerified(email);
         if (!verifiedUser) {
-            const error = new Error("Could'nt find user.")
-            error.statusCode = 404;
-            throw error;
+        throw new AppError("Could'nt find user.", 404);  
         }
     }
 
@@ -192,10 +172,10 @@ export const verifyResetPasswordOtp = async (email, code) => {
     await verifyOtp(email, "reset_password", code);
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    
+
     // Delete reset token in database
     await deleteResetTokensByEmail(email);
-    
+
     // Create reset token
     await createResetToken({
         email,
@@ -210,25 +190,19 @@ export const verifyResetPasswordOtp = async (email, code) => {
 export const resetPasswordWithToken = async (resetToken, newPassword) => {
     // if no token and password throw error
     if (!resetToken || !newPassword) {
-        const error = new Error("Reset token and new password is required");
-        error.statusCode = 400;
-        throw error;
+        throw new AppError("Reset token and new password is required.", 400);  
     }
 
     const currentTime = Date.now();
     const record = await findResetToken(resetToken);
     if (!record || record.expiresAt.getTime() < currentTime) {
-        const error = new Error("Invalid  or expired reset session");
-        error.statusCode = 400;
-        throw error;
+        throw new AppError("Invalid  or expired reset session.", 400);  
     }
 
     const hashedPassword = await hashPassword(newPassword);
     const updatedUser = await updateUserPassword(record.email, hashedPassword);
     if (!updatedUser) {
-        const error = new Error("User no longer exists");
-        error.statusCode = 404;
-        throw error;
+         AppError("User no longer exists.", 404);  
     }
     await deleteResetToken(resetToken);
 

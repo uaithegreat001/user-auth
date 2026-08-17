@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt"
 import { createUser,  findUserByEmail } from "../model/user.js";
 import { generateOtp } from "./otp.service.js";
-
+import AppError from "../utils/AppError.js";
 // Hash password funtion
 const hashPassword = async (password) => {
     return await bcrypt.hash(password, 10);
@@ -17,9 +17,7 @@ export const createAccountService = async ({ name, email, password }) => {
 
     // If user exist and is verified
     if (existingUser && existingUser.isVerified) {
-        const error = new Error("User already exists");
-        error.statusCode = 400;
-        throw error;
+        throw new AppError("User already exists", 400);
     }
 
     // Hash the user password
@@ -45,9 +43,9 @@ export const createAccountService = async ({ name, email, password }) => {
     try {
         await generateOtp(email, "create_account");
     } catch (err) {
-        const error = new Error("Connection Error. please try again.");
-        error.statusCode = 500;
-        throw error;
+        throw new AppError("Connection Error. please try again.", 500);
+
+        
     }
 
     return {
@@ -64,15 +62,12 @@ export const loginUserService = async ({ email, password }) => {
     const existingUser = await findUserByEmail(email, true);
     // If not found
     if (!existingUser) {
-        const error = new Error("Could'nt find user.");
-        error.statusCode = 404;
-        throw error;
+        throw new AppError("Could'nt find user.", 404);
     }
+
     // If found not verified
     if (!existingUser.isVerified) {
-        const error = new Error("Verify your account before login.");
-        error.statusCode = 403;
-        throw error;
+        throw new AppError("Verify your account before login..", 403);   
     }
 
     // If found and is verified
@@ -80,18 +75,17 @@ export const loginUserService = async ({ email, password }) => {
     const isMatch = await bcrypt.compare(password, existingUser.password);
 
     if (!isMatch) {
-        const error = new Error("Email or password is invalid");
-        error.statusCode = 401;
-        throw error;
+        throw new AppError("Email or password is invalid", 401);   
     }
 
     // Send Otp to email
     try {
+        console.time("Sending email start at this time: ");
         await generateOtp(email, "login");
+        console.timeEnd("sending email end at this time: ");
+
     } catch (err) {
-        const error = new Error("Connection Error. please try again.");
-        error.statusCode = 500;
-        throw error;
+        throw new AppError("Connection Error. please try again.", 500);
     }
     return {
         id: existingUser._id,
@@ -107,24 +101,18 @@ export const requestPasswordReset = async (email) => {
 
     // If not found
     if(!existingUser) {
-        const error = new Error("Could'nt find user.");
-        error.statusCode = 404;
-        throw error;
+        throw new AppError("Could'nt find user.", 404);   
     }
     
     // If not verified
     if(!existingUser.isVerified) {
-        const error = new Error("Please verify your account.");
-        error.statusCode = 403;
-        throw error;
+        throw new AppError("Please verify your account.", 403);   
     }
     // Send Otp code to email
     try {
         await generateOtp(email, "reset_password");
     } catch (err) {
-        const error = new Error("Connection Error. please try again.");
-        error.statusCode = 500;
-        throw error;
+        throw new AppError("Connection Error. please try again.", 500);
     }
 
 }

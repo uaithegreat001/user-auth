@@ -120,7 +120,7 @@ export const updateUserPassword = async (email, hashedPassword) => {
     return await User.findOneAndUpdate(
         {email},
         {password: hashedPassword},
-        {new: true}
+        {returnDocument: "after"}
 
     );
 }
@@ -144,7 +144,7 @@ export const markUserVerified = async (email) => {
     return await User.findOneAndUpdate(
         { email },
         { isVerified: true },
-        { new: true }
+        { returnDocument: "after"}
     )
 };
 

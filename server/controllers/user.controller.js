@@ -7,7 +7,7 @@ import {
 } from "../services/otp.service.js";
 
 // Handle create account
-export const createAccount = async (request, response) => {
+export const createAccount = async (request, response, next) => {
     try {
         // Parse request
         const { name, email, password } = request.body;
@@ -22,18 +22,12 @@ export const createAccount = async (request, response) => {
         });
 
     } catch (error) {
-
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
-
-
+        next(error);
     }
 };
 
 // Handle user verification of OTP
-export const verifyUserCreateAccount = async (request, response) => {
+export const verifyUserCreateAccount = async (request, response, next) => {
     try {
         const { email, code } = request.body;
 
@@ -47,16 +41,12 @@ export const verifyUserCreateAccount = async (request, response) => {
         });
 
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
-
+        next(error);
     }
 };
 
 // handle create account resend otp code
-export const resendOtpForCreateAccount = async (request, response) => {
+export const resendOtpForCreateAccount = async (request, response, next) => {
     try {
         // Parse request
         const { email } = request.body;
@@ -68,16 +58,13 @@ export const resendOtpForCreateAccount = async (request, response) => {
         });
 
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 }
 
 
 // Handle user login 
-export const login = async (request, response) => {
+export const login = async (request, response, next) => {
     try {
         // Parse request
         const { email, password } = request.body;
@@ -93,16 +80,12 @@ export const login = async (request, response) => {
 
 
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
-
+        next(error);
     }
 };
 
 // Handle user login verification of otp
-export const verifyUserLogin = async (request, response) => {
+export const verifyUserLogin = async (request, response, next) => {
     try {
         // parse request
         const { email, code } = request.body;
@@ -114,16 +97,12 @@ export const verifyUserLogin = async (request, response) => {
         });
 
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
-
+        next(error);
     }
 };
 
 // Resend Otp code for login 
-export const resendOtpForLogin = async (request, response) => {
+export const resendOtpForLogin = async (request, response, next) => {
     try {
         // parse request
         const { email } = request.body;
@@ -135,15 +114,12 @@ export const resendOtpForLogin = async (request, response) => {
         });
 
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 }
 
 // Initiate password resetting
-export const initiatePasswordReset = async (request, response) => {
+export const initiatePasswordReset = async (request, response, next) => {
     try {
         // Parse request
         const { email } = request.body;
@@ -154,14 +130,11 @@ export const initiatePasswordReset = async (request, response) => {
             message: "Check your email OTP code is sent for verification",
         });
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 }
 // Handle reset password verification of otp
-export const verifyOtpForResetPassword = async(request, response) => {
+export const verifyOtpForResetPassword = async(request, response, next) => {
     try {
         const {email, code} = request.body;
         const resetToken = await verifyResetPasswordOtp(email, code);
@@ -174,15 +147,12 @@ export const verifyOtpForResetPassword = async(request, response) => {
         });
 
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        });
+        next(error);
     }
 }
 
 // Handle resend otp for resetting password
-export const resendOtpForResetPassword = async (request, response) => {
+export const resendOtpForResetPassword = async (request, response, next) => {
     try {
         const {email} = request.body;
         await resendOtp(email, "reset_password");
@@ -192,16 +162,13 @@ export const resendOtpForResetPassword = async (request, response) => {
 
         })
     } catch (error) {
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Internal server error",
-        })
+        next(error);
     }
 
 }
 
 // Handle password resetting with a token 
-export const resetPassword = async (request, response) => {
+export const resetPassword = async (request, response, next) => {
     try {
         const {token, password} = request.body;
         await resetPasswordWithToken(token, password);
@@ -211,11 +178,7 @@ export const resetPassword = async (request, response) => {
         })
 
     } catch (error){
-        return response.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message || "Reset password failed. please try again"
-        })
-
+        next(error);
     }
 }
 

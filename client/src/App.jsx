@@ -4,6 +4,8 @@ import { Toaster } from "react-hot-toast"
 import Login from "./pages/login"
 import Dashboard from "./pages/dashboard";
 import OTP from "./pages/otp";
+import ForgotPassword from "./pages/forgotPassword";
+import ResetPassword from "./pages/resetPassword";
 function App() {
   return (
     <BrowserRouter>
@@ -23,6 +25,8 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/otp" element = {<OTP/>} />
+          <Route path="/forgotPassword" element={<ForgotPassword />} />
+          <Route path="/resetPassword" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       

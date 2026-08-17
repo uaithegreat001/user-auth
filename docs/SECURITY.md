@@ -14,4 +14,4 @@ Security is enforced across three layers: frontend, middleware, and database to 
 ## Database Layer
 - Schema-level validation and sanitization
 - Passwords stored as one-way hashes
-- OTP code hashing 
+- OTP code hashing

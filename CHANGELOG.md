@@ -1,6 +1,11 @@
 # Changelog
 All changes to this project will be documented in this file
 
+## 2026-08-15
+### Added
+- Frontend for login, forgotPassword, resetPassword & verify otp pages
+- Full API integration to frontend
+
 ## 2026-08-11
 ### Added
 - OTP generation endpoint for login & reset password 

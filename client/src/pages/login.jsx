@@ -10,7 +10,7 @@ import { login } from "../services/userServces";
 function Login() {
     const navigate = useNavigate();
     // Handle form data
-    const [formData, setFormData] = useState({
+    const [data, setData] = useState({
         email: "",
         password: ""
 
@@ -21,9 +21,9 @@ function Login() {
     // Handle form changes
     const handleChanges = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData, [name]: value,
-        })
+        setData({
+            ...data, [name]: value,
+        });
 
     }
     // Loading
@@ -31,7 +31,7 @@ function Login() {
 
     // Handle error feedbacks
     const validate = () => {
-        const { email, password } = formData;
+        const { email, password } = data;
         const newErrors = {};
 
         // Email validation
@@ -63,18 +63,16 @@ function Login() {
         setLoading(true);
         // Submit user data to the backend api
         try {
-            const response = await login(formData);
+            const response = await login(data);
             toast.success(response.data.message);
 
-            setFormData({
+            setData({
                 email: "",
                 password: ""
             });
             setFieldErrors({});
-            // Redirect to dashboard
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 1000);
+            // Redirect to otp
+                navigate('/otp', {state: {email: response.data.data.email, flow: "LOGIN"}});
         } catch (error) {
             const backendMessage = error?.response?.data;
             if (backendMessage?.errors) {
@@ -104,7 +102,7 @@ function Login() {
                     label="Email Address"
                     type="email"
                     name="email"
-                    value={formData.email}
+                    value={data.email}
                     onChange={handleChanges}
                     placeholder="Enter your email address"
                     error={fieldErrors.email}
@@ -113,20 +111,32 @@ function Login() {
                     label="Password"
                     type="password"
                     name="password"
-                    value={formData.password}
+                    value={data.password}
                     onChange={handleChanges}
                     placeholder="Enter your password"
                     error={fieldErrors.password}
 
                 />
+                 <p className="forgot-password">
+                    <Link to="/forgotPassword">forgot password?</Link>
+
+                </p>
+
+               
+
                 <Button
                     text={loading ? "..." : "Login"}
                     type="submit"
                     disabled={loading}
                 />
+               
                 <div className="formFooter">
-                    <p> Don't have an account? </p>
-                    <Link to="/create-account">Create Account</Link>
+                    <p> Don't have an account? <Link to="/create-account"> Create Account</Link></p>
+                </div> <hr />
+                  <div className="termsOfUse">
+                    By continuing you agree with our 
+                    <span>Terms of use</span> and 
+                    <span>Privacy policy.</span>
                 </div>
             </form>
 

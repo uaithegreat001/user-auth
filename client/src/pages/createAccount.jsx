@@ -11,7 +11,7 @@ import { Navigate } from "react-router-dom";
 function CreateAccount() {
     const navigate = useNavigate();
     // Handle form data
-    const [formData, setFormData] = useState({
+    const [data, setData] = useState({
         name: "",
         email: "",
         password: ""
@@ -23,8 +23,8 @@ function CreateAccount() {
     // Handle form changes
     const handleChanges = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData, [name]: value,
+        setData({
+            ...data, [name]: value,
         })
 
     }
@@ -34,7 +34,7 @@ function CreateAccount() {
 
     // Handle error feedbacks
     const validate = () => {
-        const { name, email, password } = formData;
+        const { name, email, password } = data;
         const newErrors = {};
 
         // Name validation
@@ -77,23 +77,19 @@ function CreateAccount() {
 
         // Submit user data to the backend api 
         try {
-            const response = await createAccount(formData);
+            const response = await createAccount(data);
             toast.success(response.data.message);
 
-            setFormData({
+            setData({
                 name: "",
                 email: "",
                 password: ""
             });
             setFieldErrors({});
             // Redirect to OTP page
-    
-                navigate("/otp", {
-                    state: {
-                        email: response.data.data.email,
-                    }
-                });
-            
+
+            navigate("/otp", { state: { email: response.data.data.email, flow: "CREATE_ACCOUNT" } });
+
         } catch (error) {
             const backendMessage = error?.response?.data;
             if (backendMessage?.errors) {
@@ -115,13 +111,13 @@ function CreateAccount() {
     };
 
     return (
-        <FormContainer title="it's free! join now" subtitle="Fill the details to create account">
+        <FormContainer title="Create your account" subtitle="Fill in the details to continue">
             <form onSubmit={handleSubmit} noValidate>
                 <InputField
                     label="Full Name"
                     type="text"
                     name="name"
-                    value={formData.name}
+                    value={data.name}
                     onChange={handleChanges}
                     placeholder="Enter your full name"
                     error={fieldErrors.name}
@@ -131,7 +127,7 @@ function CreateAccount() {
                     label="Email Address"
                     type="email"
                     name="email"
-                    value={formData.email}
+                    value={data.email}
                     onChange={handleChanges}
                     placeholder="Enter your email address"
                     error={fieldErrors.email}
@@ -140,20 +136,26 @@ function CreateAccount() {
                     label="Password"
                     type="password"
                     name="password"
-                    value={formData.password}
+                    value={data.password}
                     onChange={handleChanges}
                     placeholder="Enter your password"
                     error={fieldErrors.password}
 
                 />
+              
+
                 <Button
-                    text={loading ? "..." : "Create Account"}
+                    text={loading ? "..." : "Continue"}
                     type="submit"
                     disabled={loading}
                 />
                 <div className="formFooter">
-                    <p> Already have an account? </p>
-                    <Link to="/">Login</Link>
+                    <p> Already have an account? <Link to="/"> Login</Link> </p>
+                </div> <hr />
+                  <div className="termsOfUse">
+                    By continuing you agree with our 
+                    <span>Terms of use</span> and 
+                    <span>Privacy policy.</span>
                 </div>
             </form>
 

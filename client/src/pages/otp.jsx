@@ -3,7 +3,14 @@ import Button from "../components/Button";
 import FormContainer from "../components/FormContainer";
 import InputField from "../components/InputField";
 import { useLocation, useNavigate } from "react-router-dom";
-import { verifyUserCreateAccount} from "../services/userServces";
+import { 
+    verifyCreateAccount, 
+    verifyLogin, 
+    verifyResetPassword, 
+    resendCodeTOCreateAccount,
+    resendCodeTOLogin,
+    resendCodeTOResetPassword 
+} from "../services/userServces";
 import toast from "react-hot-toast";
 
 
@@ -11,10 +18,12 @@ import toast from "react-hot-toast";
 function OTP() {
     const navigate = useNavigate();
     const location = useLocation();
-    const email = location.state?.email;
+
+    // Extract data from previous page
+    const { email, flow } = location.state || {};
 
     // handle form data
-    const [formData, setFormData] = useState({
+    const [data, setData] = useState({
         code: ""
     });
     const [loading, setLoading] = useState(false);
@@ -31,7 +40,7 @@ function OTP() {
     // Handle form changes
     const handleChanges = (e) => {
         const { name, value } = e.target;
-        setFormData((currentData) => ({
+        setData((currentData) => ({
             ...currentData,
             [name]: value,
         }))
@@ -41,10 +50,10 @@ function OTP() {
     const validate = () => {
         const newErrors = {};
 
-        if (!formData.code.trim()) {
+        if (!data.code.trim()) {
             newErrors.code = "Verification code is required";
-        } else if (!/^\d{6}$/.test(formData.code.trim())) {
-            newErrors.formData.code = "Verification code must be 6 digits"
+        } else if (!/^\d{6}$/.test(data.code.trim())) {
+            newErrors.data.code = "Verification code must be 6 digits"
         };
 
         setFieldErrors(newErrors);
@@ -60,18 +69,44 @@ function OTP() {
 
         // Submit user data to the backend api 
         try {
-            const response = await verifyUserCreateAccount({
-                email,
-                code: formData.code.trim()
-            });
+            let response;
+            switch (flow) {
 
-            toast.success(response.data.message);
+                case "CREATE_ACCOUNT":
+                    response = await verifyCreateAccount({ email, code: data.code.trim() })
+                    toast.success(response.data.message);
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        navigate('/dashboard');
+                    }, 2000);
+                    break;
 
-            // Redirect to OTP page
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 2000);
+                case "LOGIN":
+                    response = await verifyLogin({ email, code: data.code.trim() })
+                    toast.success(response.data.message);
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        navigate('/dashboard');
+                    }, 2000);
+                    break;
 
+                case "FORGOT_PASSWORD":
+                    response = await verifyResetPassword({ email, code: data.code.trim() });
+                    toast.success(response.data.message);
+
+                    // Getting the token from backend api response
+                    const token = response.data.data.resetToken;
+                    // Redirect to reset password
+                    setTimeout(() => {
+                        navigate('/resetPassword', { state: { token } });
+                    }, 2000);
+                    break;
+
+                default:
+                    toast.error("Invalid OTP routing.");
+                    navigate("/"); // Fallback if someone manually visits /otp   
+
+            };
         } catch (error) {
             const backendMessage = error?.response?.data;
 
@@ -81,13 +116,11 @@ function OTP() {
 
                 backendMessage.errors.forEach((err) => {
                     mappedErrors[err.field] = err.message;
-                    if(err.field === "code") {
+                    if (err.field === "code") {
                         mappedErrors.code = err.message;
                     }
                 });
-
                 setFieldErrors(mappedErrors);
-
             } else {
                 toast.error(backendMessage?.message || "Unable to verify account. Please try again.");
             }
@@ -95,30 +128,58 @@ function OTP() {
         } finally {
             setLoading(false);
         }
+    };
+    
+    // Handle resend otp code
+    const handleResendCode = async (e) => {
+        e.preventDefault();
+        try {
+            let response;
+            switch(flow) {
+                case "CREATE_ACCOUNT": 
+                response = await resendCodeTOCreateAccount({email});
+                toast.success("Code sent successifully");
+                break;
 
-    }
+                case "LOGIN": 
+                response = await resendCodeTOLogin({email});
+                toast.success("Code sent successifully");
+                break;
 
+                case "FORGOT_PASSWORD":
+                response = await resendCodeTOLogin({email});
+                toast.success("Code sent successifully");
+                break;                
+            }
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Failed to send code");
+        }
+    };
 
     return (
         <>
-            <FormContainer title="Account Verification" subtitle="Check your email otp code is sent"  >
+            <FormContainer title="Account Verification" subtitle="Code sent to your email. Check! "  >
                 <form onSubmit={handleSubmit} noValidate>
                     <InputField
-                        label= "Verification code"
+                        label="Verification code"
                         type="text"
                         name="code"
-                        placeholder="Enter 6-digits OTP"
-                        value={formData.code}
+                        placeholder="Enter 6-digits code"
+                        value={data.code}
                         onChange={handleChanges}
                         error={fieldErrors.code}
-                        
-                    />           
+
+                    />
+                    <div className="resend-otp">
+                        <p>Did'nt recieve code?
+                            <button onClick={handleResendCode}>Resend</button>
+                        </p>
+                    </div>
 
                     <Button
                         text={loading ? "Verifying..." : "Verify Account"}
                         type="submit"
                         disabled={loading}
-
                     />
 
                 </form>
