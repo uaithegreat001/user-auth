@@ -84,4 +84,15 @@ The UI is broken into small, reusable React components rather than large monolit
 4. Update user's password in database
 5. Delete the reset token
 6. Respond with success
+```
+
+### 4. Verify OTP
+1. Recieve request(email, code)
+2. Verify OTP code: check db via service to verify 
+3. Generate access token of short-lived 15m
+4. Attach access token in cookies
+5. Generate refresh token of long_lived 7days
+6. Save the refresh token: via sercvice to create
+6. Attach refresh token in cookies
+7. respond sucess message 
 

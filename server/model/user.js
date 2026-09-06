@@ -90,10 +90,30 @@ const resetTokenSchema = new mongoose.Schema({
 
 }, { timestamps: true }
 );
+// Refresh token 
+const refreshJwTokenSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "User Id is required"],
+        trim: true,
+    },
+    token: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    expiresAt: {
+        type: Date,
+        required: true,
+        expires: 0,
+    }
+}, {timestamps: true});
 
 export const User = mongoose.model("User", userSchema);
 export const Otp = mongoose.model("Otp", otpSchema);
 export const ResetToken = mongoose.model("ResetToken", resetTokenSchema);
+export const RefreshJwToken = mongoose.model("RefreshJwToken", refreshJwTokenSchema)
 
 
 // Database query for data acess
@@ -168,5 +188,14 @@ export const deleteResetTokensByEmail = async (email) => {
     return await ResetToken.deleteMany({email});
 }
 
+// Create refresh jwtoken
+export const createRefreshJwToken = async (refreshTokenData) => {
+    return await RefreshJwToken.create(refreshTokenData);
+}
 
+// Delete refresh jwtoken
+export const deleteRefreshJwToken = async(filter) => {
+    return await RefreshJwToken.deleteOne(filter);
+
+}
 

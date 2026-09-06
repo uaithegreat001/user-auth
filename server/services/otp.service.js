@@ -16,6 +16,7 @@ import {
 } from '../model/user.js';
 import 'dotenv/config';
 import { transporter } from './email.service.js';
+import AppError from '../utils/AppError.js';
 
 const OTP_LENGHTH = 6;
 const OTP_EXPIRY_TIME = 5;
@@ -73,7 +74,7 @@ export const generateOtp = async (email, otpType) => {
 
     } catch (err) {
         console.error("Error while sending mail:", err);
-        throw new AppError("Failed to send OTP to email", 502);  
+        throw new AppError("Failed to send OTP to email", 502);
     }
 
     return { success: true, message: "OTP sent successfully" };
@@ -87,12 +88,12 @@ export const resendOtp = async (email, otpType) => {
 
         // if Could'nt find user. 
         if (!existingUser) {
-        throw new AppError("Could'nt find user. please create account first.", 400);  
+            throw new AppError("Could'nt find user. please create account first.", 400);
         }
 
         // if user already exist and is verified
         if (existingUser && existingUser.isVerified) {
-        throw new AppError("Account already verified. please login.", 400);  
+            throw new AppError("Account already verified. please login.", 400);
         }
     }
 
@@ -100,10 +101,10 @@ export const resendOtp = async (email, otpType) => {
     if (otpType === "login" || otpType === "reset_password") {
 
         if (!existingUser) {
-        throw new AppError("Could'nt find user. please create account first.", 400);  
+            throw new AppError("Could'nt find user. please create account first.", 400);
         }
         if (!existingUser.isVerified) {
-        throw new AppError("Account is unverified. please verify your account.", 400);  
+            throw new AppError("Account is unverified. please verify your account.", 400);
         }
     }
 
@@ -118,20 +119,20 @@ export const resendOtp = async (email, otpType) => {
 export const verifyOtp = async (email, otpType, submittedCode) => {
 
     if (!email || !otpType || !submittedCode) {
-        throw new AppError("Email and OTP are required.", 400);  
+        throw new AppError("Email and OTP are required.", 400);
     }
 
     // Find otp in database
     const otpRecord = await findOtp({ email, otpType });
     if (!otpRecord) {
-        throw new AppError("Invalid or expired OTP.", 400);  
+        throw new AppError("Invalid or expired OTP.", 400);
     }
 
     // Check if OTP has expired
     const currentTime = Date.now();
     if (currentTime > otpRecord.expiresAt.getTime()) {
         await deleteOtp({ _id: otpRecord._id })
-        throw new AppError("OTP has expired.", 400);  
+        throw new AppError("OTP has expired.", 400);
 
     }
     // Hash otp code 
@@ -146,23 +147,23 @@ export const verifyOtp = async (email, otpType, submittedCode) => {
         && timingSafeEqual(submittedBuffer, storedBuffer);
 
     if (!matchOtp) {
-        throw new AppError("Verification code is invalid.", 400);  
+        throw new AppError("Verification code is invalid.", 400);
     }
 
-    // Set verify user to true for create account
+    // Set verify user to true and return user
+    let user;
     if (otpType === "create_account") {
-        const verifiedUser = await markUserVerified(email);
-        if (!verifiedUser) {
-        throw new AppError("Could'nt find user.", 404);  
-        }
+        user = await markUserVerified(email);
+    } else {
+        user = await findUserByEmail(email)
+    }
+    if (!user) {
+        throw new AppError("Could'nt find user.", 404);
     }
 
     // Delete the OTP
     await deleteOtp({ _id: otpRecord._id })
-    return {
-        success: true,
-        message: "OTP verified successfully"
-    };
+    return user;
 
 };
 
@@ -190,19 +191,19 @@ export const verifyResetPasswordOtp = async (email, code) => {
 export const resetPasswordWithToken = async (resetToken, newPassword) => {
     // if no token and password throw error
     if (!resetToken || !newPassword) {
-        throw new AppError("Reset token and new password is required.", 400);  
+        throw new AppError("Reset token and new password is required.", 400);
     }
 
     const currentTime = Date.now();
     const record = await findResetToken(resetToken);
     if (!record || record.expiresAt.getTime() < currentTime) {
-        throw new AppError("Invalid  or expired reset session.", 400);  
+        throw new AppError("Invalid  or expired reset session.", 400);
     }
 
     const hashedPassword = await hashPassword(newPassword);
     const updatedUser = await updateUserPassword(record.email, hashedPassword);
     if (!updatedUser) {
-         AppError("User no longer exists.", 404);  
+        AppError("User no longer exists.", 404);
     }
     await deleteResetToken(resetToken);
 

@@ -4,8 +4,10 @@ const api = axios.create(
     {
         baseURL: "http://localhost:3000/api/v1",  // Backend URL
         headers: {
-            "Content-Type": "application/json"
-        }
+            "Content-Type": "application/json",
+
+        },
+        withCredentials: true
     }
 
 );

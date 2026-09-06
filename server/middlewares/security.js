@@ -1,5 +1,6 @@
 import ratelimit from "express-rate-limit"
 import { body, validationResult } from "express-validator"
+import { verifyAccessToken } from "../utils/jwt.js"
 
 
 // Global rate limit of every api endpoints
@@ -125,7 +126,37 @@ export const resetPasswordValidator = [
 
     handleValidationErrors
 ];
+// Parse the cookies from request
+export const protectRoute = (request, response, next) => {
+    try {
+        // Read cookies from request
+        const token = request.cookies?.auth_token;
 
+        // If cookies not exist
+        if(!token) {
+            return response.status(401).json({
+                success: false,
+                message: "Access denied. please login"
+            });
+        }
+        // Verify the token
+        const decode = verifyAccessToken(token);
+        // If fail
+        if(!decode) {
+             return response.status(401).json({
+                success: false,
+                message: "Session expired or invalid session"
+            }); 
+        }
+        // Attach the request 
+        request.user._id = decode.id;
+        next();
+    } catch(error) {
+        next(error)
+    }
+
+}
+ 
 
 
 

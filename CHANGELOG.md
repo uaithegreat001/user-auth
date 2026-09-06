@@ -1,5 +1,9 @@
 # Changelog
 All changes to this project will be documented in this file
+## 2026-09-06
+### Added
+- Access and Refresh session token
+- Cookies storage 
 
 ## 2026-08-15
 ### Added

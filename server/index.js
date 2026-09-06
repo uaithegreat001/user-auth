@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { connectDB } from "./configs.js";
 import userRouter from "./routes/user.route.js";
 import { globalLimiter } from "./middlewares/security.js";
@@ -14,11 +15,13 @@ const port = process.env.PORT || 3000;
 
 // Global middlewares
 app.use(cors({
-    origin: "http://localhost:5173",  // Frontend URL
+    origin: "http://localhost:5173", // Frontend URL
+    credentials: true,
 }
 ));
 app.use(helmet());
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 // Global routes with rate limitt to all api endpoints
