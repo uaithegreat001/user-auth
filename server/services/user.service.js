@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt"
-import { createUser,  findUserByEmail } from "../model/user.js";
+import { createUser, findUserByEmail } from "../model/user.js";
 import { generateOtp } from "./otp.service.js";
 import AppError from "../utils/AppError.js";
 // Hash password funtion
 const hashPassword = async (password) => {
     return await bcrypt.hash(password, 10);
-};  
+};
 
 
 // Handle create account service
@@ -23,7 +23,7 @@ export const createAccountService = async ({ name, email, password }) => {
     // Hash the user password
     const hashedPassword = await hashPassword(password);
 
-     // If user exist and is not verified ( allow retry by updating data )
+    // If user exist and is not verified ( allow retry by updating data )
     if (existingUser && !existingUser.isVerified) {
         existingUser.name = name;
         existingUser.password = hashedPassword;
@@ -45,7 +45,7 @@ export const createAccountService = async ({ name, email, password }) => {
     } catch (err) {
         throw new AppError("Connection Error. please try again.", 500);
 
-        
+
     }
 
     return {
@@ -58,7 +58,7 @@ export const createAccountService = async ({ name, email, password }) => {
 
 // Handle login service 
 export const loginUserService = async ({ email, password }) => {
-     // Check user by email in database including password
+    // Check user by email in database including password
     const existingUser = await findUserByEmail(email, true);
     // If not found
     if (!existingUser) {
@@ -67,7 +67,7 @@ export const loginUserService = async ({ email, password }) => {
 
     // If found not verified
     if (!existingUser.isVerified) {
-        throw new AppError("Verify your account before login..", 403);   
+        throw new AppError("Verify your account before login..", 403);
     }
 
     // If found and is verified
@@ -75,21 +75,37 @@ export const loginUserService = async ({ email, password }) => {
     const isMatch = await bcrypt.compare(password, existingUser.password);
 
     if (!isMatch) {
-        throw new AppError("Email or password is invalid", 401);   
+        throw new AppError("Email or password is invalid", 401);
     }
 
-    // Send Otp to email
-    try {
-        console.time("Sending email start at this time: ");
-        await generateOtp(email, "login");
-        console.timeEnd("sending email end at this time: ");
+    // Check if pasword reset within 5 minute
+    const fiveMinutes = Date.now() - (5 * 60 * 1000);
+    const wasRecentlyReset = existingUser.lastPasswordReset &&
+        new Date(existingUser.lastPasswordReset).getTime() > fiveMinutes;
 
-    } catch (err) {
-        throw new AppError("Connection Error. please try again.", 500);
+    let requiresOTP = true;
+
+    // Check if its true
+    if (wasRecentlyReset) {
+        requiresOTP = false;
+    } else {
+
+        // Send Otp to email
+        try {
+            console.time("Sending email start at this time: ");
+            await generateOtp(email, "login");
+            console.timeEnd("sending email end at this time: ");
+
+        } catch (err) {
+            throw new AppError("Connection Error. please try again.", 500);
+        }
+
     }
     return {
         id: existingUser._id,
+        name: existingUser.name,
         email: existingUser.email,
+        requiresOTP
     }
 
 }
@@ -100,18 +116,20 @@ export const requestPasswordReset = async (email) => {
     const existingUser = await findUserByEmail(email);
 
     // If not found
-    if(!existingUser) {
-        throw new AppError("Could'nt find user.", 404);   
+    if (!existingUser) {
+        throw new AppError("Could'nt find user.", 404);
     }
-    
+
     // If not verified
-    if(!existingUser.isVerified) {
-        throw new AppError("Please verify your account.", 403);   
+    if (!existingUser.isVerified) {
+        throw new AppError("Please verify your account.", 403);
     }
     // Send Otp code to email
     try {
         await generateOtp(email, "reset_password");
+
     } catch (err) {
+        console.error("THE REAL ERROR IS:", err); 
         throw new AppError("Connection Error. please try again.", 500);
     }
 

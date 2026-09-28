@@ -1,14 +1,16 @@
+import logger from "../utils/logger.js";
+
 const errorHandler = (error, request, response, next) => {
 
     const statusCode = error.statusCode || 500;
     const message = error.isOperational ? error.message : "Internal server error";
 
     // Log any error
-    console.error(`[Error: ] ${request.method} ${request.originalUrl}`, {
-        message: error.message,
+    logger.error( error.message, {
+        method: request.method,
+        url: request.originalUrl,
         statusCode,
-        stack: error.stack,
-        timestamp: new Date().toISOString() 
+        stack: error.stack
     });
 
     // Response

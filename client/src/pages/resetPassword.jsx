@@ -71,9 +71,9 @@ function ResetPassword() {
                 password: ""
             });
             setFieldErrors({});
-            // Redirect to dashboard
+            // Redirect to login page after successful reset
             setTimeout(() => {
-                navigate('/dashboard');
+                navigate("/");
             }, 1000);
         } catch (error) {
             if (!error.response) {
@@ -115,7 +115,7 @@ function ResetPassword() {
                     />
 
                     <Button
-                        text={loading ? "..." : "reset password"}
+                        text={loading ? "Resetting..." : "Reset password"}
                         type="submit"
                         disabled={loading}
                     />

@@ -71,8 +71,18 @@ function Login() {
                 password: ""
             });
             setFieldErrors({});
-            // Redirect to otp
-                navigate('/otp', {state: {email: response.data.data.email, flow: "LOGIN"}});
+
+            // Check it require OTP or not
+            if (response.data.data.requiresOTP === false) {
+                setTimeout(() => {
+                    navigate('/dashboard')
+                }, 2000);
+                
+            } else {
+                // Redirect to otp
+                navigate('/otp', { state: { email: response.data.data.email, flow: "LOGIN" } });
+            }
+
         } catch (error) {
             const backendMessage = error?.response?.data;
             if (backendMessage?.errors) {
@@ -80,8 +90,8 @@ function Login() {
                 const mappedErrors = {};
                 backendMessage.errors.forEach((err) => {
                     mappedErrors[err.field] = err.message;
-                    
-                }); 
+
+                });
                 setFieldErrors(mappedErrors);
             } else {
                 toast.error(backendMessage?.message || "Internal server error. Please try again later.");
@@ -117,25 +127,25 @@ function Login() {
                     error={fieldErrors.password}
 
                 />
-                 <p className="forgot-password">
+                <p className="forgot-password">
                     <Link to="/forgotPassword">forgot password?</Link>
 
                 </p>
 
-               
+
 
                 <Button
                     text={loading ? "..." : "Login"}
                     type="submit"
                     disabled={loading}
                 />
-               
+
                 <div className="formFooter">
                     <p> Don't have an account? <Link to="/create-account"> Create Account</Link></p>
                 </div> <hr />
-                  <div className="termsOfUse">
-                    By continuing you agree with our 
-                    <span>Terms of use</span> and 
+                <div className="termsOfUse">
+                    By continuing you agree with our
+                    <span>Terms of use</span> and
                     <span>Privacy policy.</span>
                 </div>
             </form>

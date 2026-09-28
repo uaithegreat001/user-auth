@@ -6,8 +6,23 @@ import {
     resetPasswordWithToken
 } from "../services/otp.service.js";
 import { generateAccessToken, generateRefreshJwToken } from "../utils/jwt.js";
-import {setCookies, setRefreshCookies} from "../utils/cookies.js";
+import { setCookies, setRefreshCookies } from "../utils/cookies.js";
 import { refreshJwTokenService } from "../services/token.service.js";
+
+
+// Assign jwt 
+export const assignJWToken = async (user, response) => {
+    const userId = user._id || user.id;
+    // Access jw token
+    const token = generateAccessToken(userId);
+    response.cookie("auth_token", token, setCookies);
+
+    // Refresh jw token
+    const refreshJwToken = generateRefreshJwToken(userId);
+    await refreshJwTokenService(userId, refreshJwToken);
+    response.cookie("refresh_token", refreshJwToken, setRefreshCookies);
+
+}
 
 // Handle create account
 export const createAccount = async (request, response, next) => {
@@ -37,19 +52,13 @@ export const verifyUserCreateAccount = async (request, response, next) => {
         // Service verifies OTP, marks user verified, and returns the user
         const user = await verifyOtp(email, "create_account", code);
 
-        // Access jwt assign
-        const token = generateAccessToken(user._id);
-        response.cookie("auth_token", token, setCookies);
-
-        // Refresh jwt assign
-        const refreshJwToken = generateRefreshJwToken(user._id);
-        await refreshJwTokenService(user._id, refreshJwToken);
-        response.cookie("refresh_token", refreshJwToken, setRefreshCookies);
+        // Assign the jw token
+        await assignJWToken(user, response);
 
         return response.status(200).json({
             success: true,
             message: "Account created successfully",
-            user: { id: user._id, name: user.name, email: user.email, refreshJwToken }
+            user: { id: user._id, name: user.name, email: user.email }
         });
 
     } catch (error) {
@@ -83,11 +92,22 @@ export const login = async (request, response, next) => {
 
         const user = await loginUserService({ email, password });
 
+        // Assign JW Token to login if comes from reset password window
+        if (!user.requiresOTP) {
+            // Assign the jw token
+            await assignJWToken(user, response);
+            return response.status(200).json({
+                success: true,
+                message: "Login successful",
+                data: user ,
+
+            });
+        }
         // Response & return user data
         return response.status(200).json({
             success: true,
             message: "Check your email OTP code is sent for verification",
-            data: user,
+            data:  user,
         });
 
 
@@ -105,19 +125,12 @@ export const verifyUserLogin = async (request, response, next) => {
         // Service verifies OTP and returns the user
         const user = await verifyOtp(email, "login", code);
 
-        // Jwt assign
-        const token = generateAccessToken(user._id);
-        // Set token in cookie
-        response.cookie("auth_token", token, setCookies);
-        
-         // Refresh jwt assign
-        const refreshJwToken = generateRefreshJwToken(user._id);
-        await refreshJwTokenService(user._id, refreshJwToken);
-        response.cookie("refresh_token", refreshJwToken, setRefreshCookies);
+        // Assign the jw token
+        await assignJWToken(user, response);
 
         return response.status(200).json({
             success: true,
-            message: "Login successfully",
+            message: "Login successful",
             user: { id: user._id, name: user.name, email: user.email }
         });
 

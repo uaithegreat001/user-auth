@@ -53,7 +53,7 @@ function OTP() {
         if (!data.code.trim()) {
             newErrors.code = "Verification code is required";
         } else if (!/^\d{6}$/.test(data.code.trim())) {
-            newErrors.data.code = "Verification code must be 6 digits"
+            newErrors.code = "Verification code must be 6 digits"
         };
 
         setFieldErrors(newErrors);
@@ -147,8 +147,8 @@ function OTP() {
                 break;
 
                 case "FORGOT_PASSWORD":
-                response = await resendCodeTOLogin({email});
-                toast.success("Code sent successifully");
+                response = await resendCodeTOResetPassword({email});
+                toast.success("Code sent successfully");
                 break;                
             }
         } catch (error) {

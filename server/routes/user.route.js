@@ -55,26 +55,27 @@ router.post("/login/verify/resend",
     emailValidator,
     resendOtpForLogin
 )
-router.post("/forgot-password", 
-    authLimiter, 
-    emailValidator, 
+router.post("/forgot-password",
+    authLimiter,
+    emailValidator,
     initiatePasswordReset
 )
-router.post("/reset-password/verify", 
-    authLimiter, 
-    otpValidator, 
+router.post("/reset-password/verify",
+    authLimiter,
+    otpValidator,
     verifyOtpForResetPassword
 )
-router.post("/reset-password/verify/resend", 
-    authLimiter, 
-    emailValidator, 
+router.post("/reset-password/verify/resend",
+    authLimiter,
+    emailValidator,
     resendOtpForResetPassword
 )
-router.post("/reset-password", 
-    authLimiter, 
-    resetPasswordValidator, 
+router.post("/reset-password",
+    authLimiter,
+    resetPasswordValidator,
     resetPassword
 )
- 
 
-export default router
+
+
+export default router;

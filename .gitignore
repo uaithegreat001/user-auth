@@ -9,3 +9,6 @@ server/node_modules/
 server/dist/
 server/.env
 test.http
+
+# Logs
+*.log

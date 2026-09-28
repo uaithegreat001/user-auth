@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false,
+    },
+    lastPasswordReset: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true }
 );
@@ -55,7 +59,7 @@ const otpSchema = new mongoose.Schema({
     expiresAt: {
         type: Date,
         required: true,
-        expires: 0 
+        expires: 0
 
 
     }
@@ -69,7 +73,7 @@ otpSchema.index(
 
 // Reset token schema
 const resetTokenSchema = new mongoose.Schema({
-     email: {
+    email: {
         type: String,
         lowercase: true,
         required: [true, "Email address is required"],
@@ -84,7 +88,7 @@ const resetTokenSchema = new mongoose.Schema({
     expiresAt: {
         type: Date,
         required: true,
-        expires: 0 
+        expires: 0
     }
 
 
@@ -108,7 +112,7 @@ const refreshJwTokenSchema = new mongoose.Schema({
         required: true,
         expires: 0,
     }
-}, {timestamps: true});
+}, { timestamps: true });
 
 export const User = mongoose.model("User", userSchema);
 export const Otp = mongoose.model("Otp", otpSchema);
@@ -138,9 +142,12 @@ export const findUserByEmail = async (email, includePassword = false) => {
 // Update a user password by email
 export const updateUserPassword = async (email, hashedPassword) => {
     return await User.findOneAndUpdate(
-        {email},
-        {password: hashedPassword},
-        {returnDocument: "after"}
+        { email },
+        {
+            password: hashedPassword,
+            lastPasswordReset: Date.now()
+        },
+        { returnDocument: "after" }
 
     );
 }
@@ -164,7 +171,7 @@ export const markUserVerified = async (email) => {
     return await User.findOneAndUpdate(
         { email },
         { isVerified: true },
-        { returnDocument: "after"}
+        { returnDocument: "after" }
     )
 };
 
@@ -175,17 +182,17 @@ export const createResetToken = async (tokenData) => {
 
 // Find reset token in db
 export const findResetToken = async (token) => {
-    return await ResetToken.findOne({token});
+    return await ResetToken.findOne({ token });
 };
 
 // Delete reset token in db
 export const deleteResetToken = async (token) => {
-    return await ResetToken.deleteOne({token});
+    return await ResetToken.deleteOne({ token });
 };
 
 // Delete reset token in db
 export const deleteResetTokensByEmail = async (email) => {
-    return await ResetToken.deleteMany({email});
+    return await ResetToken.deleteMany({ email });
 }
 
 // Create refresh jwtoken
@@ -194,7 +201,7 @@ export const createRefreshJwToken = async (refreshTokenData) => {
 }
 
 // Delete refresh jwtoken
-export const deleteRefreshJwToken = async(filter) => {
+export const deleteRefreshJwToken = async (filter) => {
     return await RefreshJwToken.deleteOne(filter);
 
 }

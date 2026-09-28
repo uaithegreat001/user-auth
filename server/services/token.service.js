@@ -1,8 +1,8 @@
 import { createRefreshJwToken } from "../model/user.js";
 
 export const refreshJwTokenService = async (userId, refreshJwToken) => {
-    const sevenDaysInMinutes = 7 * 24 * 60 * 60 * 1000;
-    const expiresAt = new Date(Date.now()) + sevenDaysInMinutes;
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(Date.now() + sevenDays);
     return await createRefreshJwToken({
         userId: userId,
         token: refreshJwToken,
