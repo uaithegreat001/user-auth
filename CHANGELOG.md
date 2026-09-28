@@ -48,4 +48,4 @@ All changes to this project will be documented in this file
 - Frontend account creation and login pages built with React.js and vanilla CSS.
 - Full API integration connecting React forms to backend endpoints using Axios.
 
- git commit -m "feat: Add logger and fix: refresh token bugs"
+
